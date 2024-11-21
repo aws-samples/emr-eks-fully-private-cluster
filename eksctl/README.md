@@ -21,7 +21,7 @@ export KARPENTER_NAMESPACE="karpenter"
 export KARPENTER_VERSION="1.0.7"
 export K8S_VERSION="1.31"
 export AWS_PARTITION="aws"
-export CLUSTER_NAME="karpenter-irsa-private-cluster"
+export CLUSTER_NAME="fully-private-cluster"
 export AWS_DEFAULT_REGION="ap-southeast-1"
 export AWS_ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
 export ECR_URL="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
@@ -40,7 +40,6 @@ curl -fsSL https://raw.githubusercontent.com/aws/karpenter-provider-aws/v"${KARP
 ```
 
 ### 3. Create and Deploy EKS Cluster
-
 
 Create the cluster configuration inline and deploy:
 
@@ -257,6 +256,15 @@ Add the following IAM policy to the node role for ECR image pulling:
         }
     ]
 }
+```
+
+### Enable IAM Roles for Service Accounts (IRSA)
+
+```bash
+eksctl utils associate-iam-oidc-provider \
+  --cluster ${CLUSTER_NAME} \
+  --region ${REGION} \
+  --approve
 ```
 
 ## Troubleshooting
