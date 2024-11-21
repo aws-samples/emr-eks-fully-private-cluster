@@ -1,0 +1,7 @@
+# write a gitignore file for the project, ignore most commonly ignored terraform ignored files
+.terraform*
+*.tfstate*
+planfile
+*.tfvars
+
+.DS_Store

@@ -1,11 +1,6 @@
-## My Project
+# EMR EKS Fully Private Cluster
 
-TODO: Fill this README out!
-
-Be sure to:
-
-* Change the title in this README
-* Edit your repository description on GitHub
+This project is a fully private EKS cluster with Karpenter for EMR workloads. It include both eksctl setup instructions and terraform code to setup the cluster.
 
 ## Security
 
