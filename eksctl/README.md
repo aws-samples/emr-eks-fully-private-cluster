@@ -114,22 +114,35 @@ Deploy the cluster:
 eksctl create cluster -f cluster.yaml
 ```
 
-### 4. Configure Cluster Access
+### 4. Create ECR Pull Through Cache (Optional)
+
+Create a pull through cache for the ECR public repository. This is optional, but it can help you to pull the image from ECR public registry. You can use the similar approach for other public registries. Learn more about [ECR pull through cache](https://docs.aws.amazon.com/AmazonECR/latest/userguide/pull-through-cache-creating-rule.html).
 
 ```bash
-export CLUSTER_ENDPOINT="$(aws eks describe-cluster --name "${CLUSTER_NAME}" --query "cluster.endpoint" --output text)"
-export KARPENTER_IAM_ROLE_ARN="arn:${AWS_PARTITION}:iam::${AWS_ACCOUNT_ID}:role/${CLUSTER_NAME}-karpenter"
+aws ecr create-pull-through-cache-rule \
+     --ecr-repository-prefix ecr-public \
+     --upstream-registry-url public.ecr.aws \
+     --region ${AWS_DEFAULT_REGION}
 ```
 
 ### 5. Install Karpenter
 
 **Note**: Before installing Karpenter, you may need to put Karpenter image in your own ECR repository. In this example, we will using the ECR pull through cache feature, so we specify the image by setting the `controller.image.repository` field. Please change accordingly for your own use case.
 
+Retrieve the cluster endpoint and Karpenter IAM role ARN:
+
+```bash
+export CLUSTER_ENDPOINT="$(aws eks describe-cluster --name "${CLUSTER_NAME}" --query "cluster.endpoint" --output text)"
+export KARPENTER_IAM_ROLE_ARN="arn:${AWS_PARTITION}:iam::${AWS_ACCOUNT_ID}:role/${CLUSTER_NAME}-karpenter"
+export KARPENTER_IMAGE_REPOSITORY="${ECR_URL}/ecr-public/karpenter/controller"  # Change to your own ECR repository if you already have one
+```
+
+Install Karpenter:
 ```bash
 helm registry logout public.ecr.aws
 helm upgrade --install karpenter oci://public.ecr.aws/karpenter/karpenter --version "${KARPENTER_VERSION}" \
   --namespace "${KARPENTER_NAMESPACE}" --create-namespace \
-  --set "controller.image.repository=${ECR_URL}/ecr-public/karpenter/controller" \
+  --set "controller.image.repository=${KARPENTER_IMAGE_REPOSITORY}" \
   --set "settings.isolatedVPC=true" \
   --set "settings.clusterName=${CLUSTER_NAME}" \
   --set "settings.clusterEndpoint=${CLUSTER_ENDPOINT}" \
