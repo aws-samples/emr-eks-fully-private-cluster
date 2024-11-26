@@ -95,6 +95,20 @@ managedNodeGroups:
   privateNetworking: true
   desiredCapacity: 3
   volumeType: gp3
+  # The below IAM policy is required ONLY IF you are using ECR Pull Through Cache, which may need to create the repository in your ECR public registry.
+  iam:
+    attachPolicy:
+      Version: "2012-10-17"
+      Statement:
+        - Effect: Allow
+          Action:
+            - ecr:CreateRepository
+            - ecr:BatchImportUpstreamImage
+            - ecr:GetAuthorizationToken
+            - ecr:BatchCheckLayerAvailability
+            - ecr:GetDownloadUrlForLayer
+            - ecr:BatchGetImage
+          Resource: "*"
 
 addons:
 - name: vpc-cni
