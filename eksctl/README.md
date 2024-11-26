@@ -114,6 +114,8 @@ Deploy the cluster:
 eksctl create cluster -f cluster.yaml
 ```
 
+It's very likely that you do not have the access to the EKS cluster due to the networking issue, that's because there is no valid inbound access rule from EKS Control Plane security group. Please add the inbound rule by navigating to the EKS console, find the `Additional security groups` under the `Networking` tab.
+
 ### 4. Create ECR Pull Through Cache (Optional)
 
 Create a pull through cache for the ECR public repository. This is optional, but it can help you to pull the image from ECR public registry. You can use the similar approach for other public registries. Learn more about [ECR pull through cache](https://docs.aws.amazon.com/AmazonECR/latest/userguide/pull-through-cache-creating-rule.html).
@@ -154,7 +156,8 @@ helm upgrade --install karpenter oci://public.ecr.aws/karpenter/karpenter --vers
   --set "settings.aws.clusterName=${CLUSTER_NAME}" \
   --set "settings.aws.clusterEndpoint=${CLUSTER_ENDPOINT}" \
   --set "settings.aws.interruptionQueue=${CLUSTER_NAME}" \
-  --set "serviceAccount.create=false"
+  --set "serviceAccount.create=false" \
+  --set "serviceAccount.name=karpenter"
 ```
 
 ### 6. Create Instance Profile
