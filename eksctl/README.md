@@ -63,7 +63,6 @@ iam:
     roleName: ${CLUSTER_NAME}-karpenter
     attachPolicyARNs:
     - arn:${AWS_PARTITION}:iam::${AWS_ACCOUNT_ID}:policy/KarpenterControllerPolicy-${CLUSTER_NAME}
-    roleOnly: true
 
 vpc:
   subnets:
@@ -151,6 +150,18 @@ Retrieve the cluster endpoint and Karpenter IAM role ARN:
 export CLUSTER_ENDPOINT="$(aws eks describe-cluster --name "${CLUSTER_NAME}" --query "cluster.endpoint" --output text)"
 export KARPENTER_IAM_ROLE_ARN="arn:${AWS_PARTITION}:iam::${AWS_ACCOUNT_ID}:role/${CLUSTER_NAME}-karpenter"
 export KARPENTER_IMAGE_REPOSITORY="${ECR_URL}/ecr-public/karpenter/controller"  # Change to your own ECR repository if you already have one
+```
+
+Check if the Karpenter service account exists with IRSA setup or not:
+
+```bash
+kubectl get sa karpenter -n ${KARPENTER_NAMESPACE}
+```
+
+If the service account does not exist or IRSA is not setup, you can create one:
+
+```bash
+eksctl create iamserviceaccount -f cluster.yaml --approve
 ```
 
 Install Karpenter:
