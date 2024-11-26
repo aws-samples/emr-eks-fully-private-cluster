@@ -301,11 +301,21 @@ Add the following IAM policy to the node role for ECR image pulling:
 
 ### Enable IAM Roles for Service Accounts (IRSA)
 
+Associate the OIDC provider with the EKS cluster:
+
 ```bash
 eksctl utils associate-iam-oidc-provider \
   --cluster ${CLUSTER_NAME} \
   --region ${REGION} \
   --approve
+```
+
+Configure the IRSA for Karpenter:
+
+```bash
+eksctl create iamserviceaccount --cluster ${CLUSTER_NAME} \
+  --name karpenter --namespace ${KARPENTER_NAMESPACE} \
+  --role ${KARPENTER_IAM_ROLE_ARN} --approve
 ```
 
 ## Troubleshooting
