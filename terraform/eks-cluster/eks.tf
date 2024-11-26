@@ -8,8 +8,8 @@ locals {
   vpc = data.terraform_remote_state.network_state.outputs.vpc
 
   additional_policies = {
-    AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-    ECR = aws_iam_policy.ecr_repo_write.arn
+    ssm_managed_instance_core = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+    ecr_repo_write            = aws_iam_policy.ecr_repo_write.arn
   }
 
   tags = {
@@ -47,15 +47,17 @@ module "eks" {
 
   vpc_id     = local.vpc.vpc_id
   subnet_ids = local.vpc.private_subnets
-  
+
   # Automatically add the workstation IAM identity for cluster access
   enable_cluster_creator_admin_permissions = true
 
+
+
   access_entries = {
     karpenter_nodes = {
-      principal_arn     = aws_iam_role.karpenter.arn
-      type              = "EC2_LINUX"
-      username          = "system:node:{{EC2PrivateDNSName}}"
+      principal_arn = aws_iam_role.karpenter.arn
+      type          = "EC2_LINUX"
+      username      = "system:node:{{EC2PrivateDNSName}}"
     }
   }
 
@@ -113,7 +115,7 @@ module "eks" {
     iam_role_additional_policies = {
       # Not required, but used in the example to access the nodes to inspect mounted volumes
       AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-      ECR = aws_iam_policy.ecr_repo_write.arn
+      ECR                          = aws_iam_policy.ecr_repo_write.arn
     }
   }
 

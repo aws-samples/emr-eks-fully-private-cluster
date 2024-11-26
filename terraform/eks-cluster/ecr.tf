@@ -1,11 +1,11 @@
-module "secrets_manager" {
-  source  = "terraform-aws-modules/secrets-manager/aws"
-  version = "~> 1.1"
+# module "secrets_manager" {
+#   source  = "terraform-aws-modules/secrets-manager/aws"
+#   version = "~> 1.1"
 
-  name                    = "ecr-pullthroughcache/docker"
-  secret_string           = jsonencode(var.docker_secret)
-  recovery_window_in_days = 0 # Set to 0 for testing purposes, this will immediately delete the secret. This action is irreversible. https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_DeleteSecret.html
-}
+#   name                    = "ecr-pullthroughcache/docker"
+#   secret_string           = jsonencode(var.docker_secret)
+#   recovery_window_in_days = 0 # Set to 0 for testing purposes, this will immediately delete the secret. This action is irreversible. https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_DeleteSecret.html
+# }
 
 #---------------------------------------------------------------
 # The IAM policy for EKS worker node to pull images via ECR
