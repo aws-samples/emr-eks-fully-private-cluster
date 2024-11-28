@@ -3,6 +3,7 @@
 This guide walks through the process of setting up Amazon EMR on EKS and running a Spark job.
 
 ## Prerequisites
+
 - AWS CLI configured
 - `eksctl` installed
 - `kubectl` installed
@@ -11,16 +12,17 @@ This guide walks through the process of setting up Amazon EMR on EKS and running
 ## Setup Steps
 
 ### 1. Set Environment Variables and Create Namespace
+
 ```bash
 export CLUSTER_NAME="fully-private-cluster"
 export AWS_REGION="ap-southeast-1"
 export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 export EMR_JOB_EXECUTION_ROLE_NAME="${CLUSTER_NAME}-emr-eks-JobExecutionRole"
 export EMR_NAMESPACE="spark"
-kubectl create namespace ${EMR_NAMESPACE}
 ```
 
 ### 2. Create IAM Identity Mapping
+
 ```bash
 eksctl create iamidentitymapping --cluster ${CLUSTER_NAME} \
     --namespace spark \
@@ -31,6 +33,7 @@ eksctl create iamidentitymapping --cluster ${CLUSTER_NAME} \
 ### 3. Create EMR Job Execution Role
 
 #### Create Trust Policy
+
 ```bash
 cat <<EoF > emr-trust-policy.json
 {
@@ -52,6 +55,7 @@ aws iam create-role --role-name ${EMR_JOB_EXECUTION_ROLE_NAME} \
 ```
 
 #### Create Role Policy
+
 ```bash
 cat <<EoF > emr-JobExecutionRole.json
 {
@@ -88,7 +92,9 @@ aws iam put-role-policy --role-name ${EMR_JOB_EXECUTION_ROLE_NAME} \
 ```
 
 ### 4. Update Role Trust Policy
+
 ```bash
+kubectl create namespace ${EMR_NAMESPACE}
 aws emr-containers update-role-trust-policy \
     --cluster-name ${CLUSTER_NAME} \
     --namespace spark \
@@ -96,6 +102,7 @@ aws emr-containers update-role-trust-policy \
 ```
 
 ### 5. Create Virtual Cluster
+
 ```bash
 aws emr-containers create-virtual-cluster \
 --name ${CLUSTER_NAME}-spark \
@@ -111,10 +118,8 @@ aws emr-containers create-virtual-cluster \
 ```
 
 ### 6. Create S3 Bucket and Set Environment Variables
-```bash
-export s3DemoBucket=s3://spark-emr-eks-demo-${AWS_ACCOUNT_ID}-${AWS_REGION}
-aws s3 mb $s3DemoBucket
 
+```bash
 export EMR_VIRTUAL_CLUSTER_ID=$(aws emr-containers list-virtual-clusters \
     --query "virtualClusters[?contains(name, '${CLUSTER_NAME}-spark')].id" \
     --output text)
@@ -125,6 +130,7 @@ export EMR_EXECUTION_ROLE_ARN=$(aws iam get-role \
 ```
 
 ### 7. Run Sample Spark Job
+
 ```bash
 aws emr-containers start-job-run \
   --virtual-cluster-id=$EMR_VIRTUAL_CLUSTER_ID \
