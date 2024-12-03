@@ -1,0 +1,33 @@
+# recommned eksctl version v0.196.0 or higher
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: auto-mode-private-cluster
+  region: ap-southeast-1
+  version: "1.30"
+
+vpc:
+  subnets:
+    private:
+      # Replace with your own subnet IDs
+      ap-southeast-1a:
+        id: subnet-xxxxxxxxxxxxxxxxx
+      ap-southeast-1b:
+        id: subnet-xxxxxxxxxxxxxxxxx
+      ap-southeast-1c:
+        id: subnet-xxxxxxxxxxxxxxxxx
+
+privateCluster:
+  enabled: true
+  skipEndpointCreation: true
+
+autoModeConfig:
+  # defaults to false
+  enabled: true
+  # optional, defaults to [general-purpose, system].
+  # To disable creation of nodePools, set it to the empty array ([]).
+  # nodePools: [ general-purpose, system ]
+  nodePools: [ general-purpose ]
+  # optional, eksctl creates a new role if this is not supplied
+  # and nodePools are present.
+  #  nodeRoleARN: "
