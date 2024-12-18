@@ -18,7 +18,7 @@ Set the required environment variables, you may change the variables to your own
 
 ```bash
 export KARPENTER_NAMESPACE="karpenter"
-export KARPENTER_VERSION="1.0.7"
+export KARPENTER_VERSION="1.1.1"
 export K8S_VERSION="1.31"
 export AWS_PARTITION="aws"
 export CLUSTER_NAME="fully-private-cluster"
@@ -116,6 +116,11 @@ addons:
   version: latest
 - name: kube-proxy
   version: latest
+- name: amazon-cloudwatch-observability
+  version: latest
+  attachPolicyARNs:
+  - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+  - arn:aws:iam::aws:policy/AWSXRayWriteOnlyAccess
 EOF
 ```
 
@@ -317,6 +322,14 @@ eksctl create iamserviceaccount --cluster ${CLUSTER_NAME} \
   --name karpenter --namespace ${KARPENTER_NAMESPACE} \
   --role ${KARPENTER_IAM_ROLE_ARN} --approve
 ```
+
+### Add/EKS managed addon
+
+```bash
+eksctl create addon -f eksctl/cluster.yaml
+eksctl update addon -f eksctl/cluster.yaml
+```
+
 
 ## Troubleshooting
 
